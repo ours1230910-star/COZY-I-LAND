@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>COZY♥I-LAND 길드 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #FBF2EA;
+    --surface: #FFFFFF;
+    --surface-soft: #FFF9F4;
+    --rose: #E88AA0;
+    --rose-dark: #C96B82;
+    --rose-pale: #FBE4EA;
+    --sage: #8FAE8B;
+    --sage-dark: #6F9169;
+    --ink: #4A3B36;
+    --ink-soft: #8A7A72;
+    --line: #F0DFD3;
+    --red: #C4372B;
+    --blue: #2860B0;
+    --radius-sm: 10px;
+    --radius-md: 16px;
+    --radius-lg: 22px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 8% 4%, #FFE3EC 0%, transparent 38%),
+      radial-gradient(circle at 96% 0%, #FFF1D9 0%, transparent 32%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Noto Sans KR', sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3, .display{ font-family:'Do Hyeon', sans-serif; letter-spacing:0.5px; }
+  button{ font-family:inherit; cursor:pointer; }
+  input, select{ font-family:inherit; }
+
+  /* ---------- Header ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 22px; gap:12px;
+    background:linear-gradient(135deg, #F6A9BC 0%, var(--rose) 55%, #E4788F 100%);
+    color:#fff;
+    box-shadow:0 4px 18px rgba(196,90,116,0.25);
+  }
+  .brand{ display:flex; align-items:center; gap:10px; }
+  .brand .mark{
+    width:38px; height:38px; border-radius:12px; background:rgba(255,255,255,0.25);
+    display:flex; align-items:center; justify-content:center; font-size:19px;
+    border:1px solid rgba(255,255,255,0.5);
+  }
+  .brand h1{ font-size:22px; margin:0; line-height:1; }
+  .brand .sub{ font-size:11px; opacity:0.9; margin-top:3px; font-weight:500; }
+  .admin-area{ display:flex; align-items:center; gap:8px; }
+  .admin-chip{
+    font-size:12.5px; font-weight:600; background:rgba(255,255,255,0.22);
+    padding:7px 12px; border-radius:100px; border:1px solid rgba(255,255,255,0.4);
+    display:flex; align-items:center; gap:6px;
+  }
+  .btn{
+    border:none; border-radius:100px; padding:9px 16px; font-size:13.5px; font-weight:600;
+    transition:transform .12s ease, box-shadow .12s ease, opacity .12s ease;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn-ghost-light{ background:rgba(255,255,255,0.9); color:var(--rose-dark); }
+  .btn-ghost-light:hover{ background:#fff; }
+  .btn-primary{ background:var(--rose); color:#fff; box-shadow:0 3px 10px rgba(232,138,160,0.4); }
+  .btn-primary:hover{ background:var(--rose-dark); }
+  .btn-sage{ background:var(--sage); color:#fff; }
+  .btn-sage:hover{ background:var(--sage-dark); }
+  .btn-outline{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+  .btn-outline:hover{ border-color:var(--rose); color:var(--rose-dark); }
+  .btn-danger{ background:#fff; color:var(--red); border:1.5px solid #F3C9C4; }
+  .btn-danger:hover{ background:#FFF3F2; }
+  .btn-sm{ padding:6px 11px; font-size:12px; border-radius:100px; }
+  .btn:disabled{ opacity:0.45; cursor:not-allowed; }
+
+  /* ---------- Layout ---------- */
+  .layout{ display:flex; max-width:1180px; margin:0 auto; align-items:flex-start; }
+  .sidenav{
+    width:196px; flex-shrink:0; padding:22px 12px; position:sticky; top:0;
+    display:flex; flex-direction:column; gap:4px;
+  }
+  .navbtn{
+    text-align:left; background:transparent; border:none; padding:11px 14px;
+    border-radius:var(--radius-sm); font-size:14.5px; font-weight:600; color:var(--ink-soft);
+    display:flex; align-items:center; gap:9px;
+  }
+  .navbtn .ic{ font-size:16px; }
+  .navbtn:hover{ background:var(--rose-pale); color:var(--rose-dark); }
+  .navbtn.active{ background:var(--rose); color:#fff; box-shadow:0 3px 10px rgba(232,138,160,0.35); }
+
+  .content{ flex:1; min-width:0; padding:22px 20px 60px; }
+  .panel{
+    background:var(--surface); border-radius:var(--radius-lg); padding:22px 24px;
+    border:1px solid var(--line); box-shadow:0 2px 14px rgba(150,110,90,0.06);
+  }
+  .panel + .panel{ margin-top:16px; }
+  .panel h2{ margin:0 0 4px; font-size:21px; color:var(--rose-dark); }
+  .panel .desc{ color:var(--ink-soft); font-size:13.5px; margin:0 0 16px; line-height:1.6; }
+  .notice{
+    background:var(--surface-soft); border:1px dashed #EBCBAF; color:#8A6A3E;
+    padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px;
+  }
+  .empty{ color:var(--ink-soft); font-size:13.5px; padding:26px 10px; text-align:center; }
+
+  /* ---------- Mobile top tabs ---------- */
+  .mobtabs{ display:none; }
+
+  /* ---------- Forms ---------- */
+  .form-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px; }
+  .form-row input[type=text], .form-row input[type=number], .form-row select{
+    border:1.5px solid var(--line); border-radius:var(--radius-sm); padding:9px 12px;
+    font-size:13.5px; background:var(--surface-soft); color:var(--ink); min-width:0;
+  }
+  .form-row input:focus, .form-row select:focus{ outline:none; border-color:var(--rose); background:#fff; }
+  .field-label{ font-size:12px; color:var(--ink-soft); font-weight:600; margin-bottom:4px; display:block; }
+  .field{ display:flex; flex-direction:column; gap:3px; }
+
+  /* ---------- Lists / chips ---------- */
+  .row-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:11px 14px; border-radius:var(--radius-sm); background:var(--surface-soft);
+    border:1px solid var(--line); margin-bottom:8px;
+  }
+  .row-item .name{ font-weight:600; font-size:14.5px; }
+  .row-item .meta{ font-size:12px; color:var(--ink-soft); }
+
+  .quality-section{ margin-bottom:20px; }
+  .quality-head{
+    display:inline-flex; align-items:center; gap:8px; padding:6px 14px; border-radius:100px;
+    font-family:'Do Hyeon', sans-serif; font-size:15px; margin-bottom:10px;
+  }
+  .quality-head .count{ font-size:12px; font-family:'Noto Sans KR'; font-weight:600; opacity:0.75; }
+  .qUR{ background:#FBD9D9; color:#B3261E; }
+  .qSSR{ background:#FCE6C4; color:#A15C11; }
+  .qSR{ background:#E7DBF7; color:#6B3FA0; }
+  .flower-chip-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 13px; border-radius:var(--radius-sm); border:1px solid var(--line);
+    background:#fff; margin-bottom:6px;
+  }
+  .flower-chip-row .qtag{ font-size:10.5px; font-weight:700; padding:2px 8px; border-radius:100px; margin-right:8px; }
+
+  /* ---------- Tables ---------- */
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  thead th{
+    text-align:left; padding:9px 12px; color:var(--ink-soft); font-size:12px; font-weight:700;
+    border-bottom:2px solid var(--line);
+  }
+  tbody td{ padding:10px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  tbody tr:hover{ background:var(--surface-soft); }
+  .table-wrap{ overflow-x:auto; }
+  .rank-num{ font-family:'Do Hyeon'; font-size:15px; color:var(--rose-dark); width:26px; display:inline-block; }
+
+  /* ---------- Badges / status ---------- */
+  .badge{
+    display:inline-flex; align-items:center; gap:4px; font-size:11.5px; font-weight:700;
+    padding:4px 10px; border-radius:100px; white-space:nowrap;
+  }
+  .b-mussang{ background:#FFE9A8; color:#8A6A00; }
+  .b-honor{ background:#FADCE9; color:#A31257; }
+  .b-honorable{ background:#DCE7FB; color:#2255A4; }
+  .b-gold{ background:#FCE3B8; color:#9A5B00; }
+  .b-silver{ background:#E4E4EA; color:#5A5A66; }
+  .badge.badge-sm{ font-size:10px; padding:3px 8px; gap:3px; }
+  .b-pending{ background:#DCE7FB; color:#2255A4; }
+  .b-approved{ background:#DCEEDC; color:#3E7A3E; }
+  .b-rejected{ background:#FBD9D9; color:#B3261E; }
+  .txt-shortfall{ color:var(--red); font-weight:700; font-size:12px; }
+  .txt-ok{ color:var(--blue); font-weight:700; font-size:12px; }
+  .txt-fail{ color:var(--red); font-weight:700; font-size:12px; }
+  .diff-plus{ color:var(--sage-dark); font-weight:700; }
+  .diff-minus{ color:var(--red); font-weight:700; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(74,59,54,0.45); display:none;
+    align-items:center; justify-content:center; z-index:50; padding:16px;
+  }
+  .modal-overlay.show{ display:flex; }
+  .modal-box{
+    background:#fff; border-radius:var(--radius-lg); padding:26px 24px; width:100%; max-width:340px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.25);
+  }
+  .modal-box h3{ margin:0 0 6px; font-size:19px; color:var(--rose-dark); }
+  .modal-box p{ margin:0 0 16px; font-size:12.5px; color:var(--ink-soft); }
+  .modal-box input{
+    width:100%; border:1.5px solid var(--line); border-radius:var(--radius-sm); padding:11px 13px;
+    font-size:15px; margin-bottom:14px; background:var(--surface-soft); letter-spacing:2px;
+  }
+  .modal-box input:focus{ outline:none; border-color:var(--rose); background:#fff; }
+  .modal-actions{ display:flex; gap:8px; justify-content:flex-end; }
+  .modal-err{ color:var(--red); font-size:12px; margin:-8px 0 12px; display:none; }
+
+  .section-sub{ font-size:13px; font-weight:700; color:var(--ink); margin:18px 0 10px; }
+  .divider{ height:1px; background:var(--line); margin:18px 0; }
+
+  select.member-select{ min-width:150px; }
+
+  .request-box{
+    background:var(--surface-soft); border:1px dashed var(--rose); border-radius:var(--radius-md);
+    padding:14px 16px 16px; margin-bottom:18px;
+  }
+  .request-box .section-sub{ margin-top:0; }
+  .request-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 13px; border-radius:var(--radius-sm); border:1px solid var(--line);
+    background:#fff; margin-bottom:6px;
+  }
+  .request-row .meta-line{ font-size:11.5px; color:var(--ink-soft); margin-top:2px; }
+
+  @media (max-width: 760px){
+    .layout{ flex-direction:column; }
+    .sidenav{ display:none; }
+    .mobtabs{
+      display:flex; gap:6px; overflow-x:auto; padding:12px 14px 10px; -webkit-overflow-scrolling:touch;
+      background:var(--surface-soft); border-bottom:1px solid var(--line);
+    }
+    .mobtabs button{
+      flex-shrink:0; border:none; background:#fff; border:1px solid var(--line); color:var(--ink-soft);
+      padding:8px 13px; border-radius:100px; font-size:12.5px; font-weight:600;
+    }
+    .mobtabs button.active{ background:var(--rose); color:#fff; border-color:var(--rose); }
+    .content{ padding:16px 14px 50px; }
+    .panel{ padding:16px 15px; }
+    .brand h1{ font-size:18px; }
+    .topbar{ padding:14px 14px; flex-wrap:wrap; }
+    table{ font-size:12.5px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="mark">🌷</div>
+    <div>
+      <h1>COZY♥I-LAND</h1>
+      <div class="sub">길드 관리 시스템</div>
+    </div>
+  </div>
+  <div class="admin-area" id="adminArea"></div>
+</div>
+
+<div class="mobtabs" id="mobTabs"></div>
+
+<div class="layout">
+  <div class="sidenav" id="sideNav"></div>
+  <div class="content" id="content"></div>
+</div>
+
+<div class="modal-overlay" id="loginOverlay">
+  <div class="modal-box">
+    <h3>🔐 관리자 로그인</h3>
+    <p>비밀번호를 입력하면 멤버·꽃·기록을 수정할 수 있어요.</p>
+    <input type="password" id="loginPwInput" placeholder="비밀번호" inputmode="numeric" maxlength="12">
+    <div class="modal-err" id="loginErr">비밀번호가 올바르지 않습니다.</div>
+    <div class="modal-actions">
+      <button class="btn btn-outline btn-sm" onclick="closeLoginModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="submitLogin()">로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase (무료 Firestore 데이터베이스로 기기 간 실시간 공유를 담당해요) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+
+<script>
+/* =========================================================
+   COZY♥I-LAND — 길드 관리 웹앱 (독립형 / Firebase 연동)
+   ========================================================= */
+
+/* ⬇️ 아래 firebaseConfig 값을 본인의 Firebase 프로젝트 값으로 바꿔주세요.
+   (채팅에서 안내한 설정 방법을 따라 발급받은 값을 그대로 붙여넣으면 돼요) */
+const firebaseConfig = {
+  apiKey: "AIzaSyC_YufwE3A51BfXbaU-Mim6T0aduqbRRuE",
+  authDomain: "cozy-i-land.firebaseapp.com",
+  projectId: "cozy-i-land",
+  storageBucket: "cozy-i-land.firebasestorage.app",
+  messagingSenderId: "328905197271",
+  appId: "1:328905197271:web:4214cbf601bcee80db5292"
+};
+const FIREBASE_CONFIGURED = !!(firebaseConfig.apiKey && !firebaseConfig.apiKey.includes('여기에'));
+const FIRESTORE_COLLECTION = 'cozyIlandData';
+
+let db = null;
+let authReady = false;
+let fbStatus = 'idle'; // idle | connecting | connected | error
+let fbErrorMessage = '';
+
+const ADMIN_PASSWORD = '0618';
+
+const TABS = [
+  { id:'members',     label:'길드 멤버',     icon:'🌸' },
+  { id:'search',      label:'꽃 검색',       icon:'🔍' },
+  { id:'competition', label:'경쟁전 기록',   icon:'🏆' },
+  { id:'construction',label:'누적 건설 점수', icon:'🏗️' },
+  { id:'ranking',     label:'종합 랭킹',     icon:'📋' },
+];
+
+// '꽃 목록'은 관리자 모드에서만 아래 배열에 추가합니다.
+// 따라서 열람 모드에서는 꽃 목록 탭 자체가 생성되지 않습니다.
+const ADMIN_TABS = [
+  { id:'flowers', label:'꽃 목록', icon:'💐' },
+];
+
+const QUALITY_META = {
+  UR:  { order:0, label:'UR',  cls:'qUR'  },
+  SSR: { order:1, label:'SSR', cls:'qSSR' },
+  SR:  { order:2, label:'SR',  cls:'qSR'  },
+};
+const QUALITY_ORDER = ['UR','SSR','SR'];
+
+let members = [];
+let flowers = [];
+let ownership = {};     // { memberId: [flowerId, ...] }
+let competition = {};   // { memberId: [{date, points, missions}] }
+let construction = {};  // { memberId: [{date, score}] }
+let flowerRequests = []; // [{id, memberId, flowerId, status:'pending'|'approved'|'rejected', createdAt, resolvedAt}]
+
+let isAdmin = false;
+let activeTab = 'members';
+let selMemberOwnership = null;
+let selMemberComp = null;
+let selMemberCons = null;
+let searchQuery = '';
+let loading = true;
+
+/* ---------------- date helpers ---------------- */
+function pad(n){ return String(n).padStart(2,'0'); }
+function toISO(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+function weeklyDates(startISO, weeks){
+  const out = [];
+  let d = new Date(startISO + 'T00:00:00');
+  for(let i=0;i<weeks;i++){
+    out.push(toISO(d));
+    d.setDate(d.getDate()+7);
+  }
+  return out;
+}
+const KOR_WD = ['일','월','화','수','목','금','토'];
+function formatDate(iso){
+  const d = new Date(iso + 'T00:00:00');
+  return `${iso.replaceAll('-','.')} (${KOR_WD[d.getDay()]})`;
+}
+const COMP_DATES = weeklyDates('2026-06-15', 106); // Mondays, ~2 years
+const CONS_DATES = weeklyDates('2026-06-19', 106); // Fridays, ~2 years
+
+/* ---------------- storage (Firestore) ---------------- */
+const DEFAULTS = { members:[], flowers:[], ownership:{}, competition:{}, construction:{}, flowerRequests:[] };
+
+async function setJSON(key, value){
+  if(!FIREBASE_CONFIGURED){
+    alert('아직 Firebase 설정이 완료되지 않았어요. 파일 상단의 firebaseConfig 값을 채워주세요.');
+    return false;
+  }
+  if(!authReady || !db){
+    alert('서버에 연결하는 중이에요. 잠시 후 다시 시도해 주세요.');
+    return false;
+  }
+  try{
+    await db.collection(FIRESTORE_COLLECTION).doc(key).set({ value: JSON.stringify(value) });
+    return true;
+  }catch(e){
+    console.error(e);
+    alert('저장 중 오류가 발생했어요: ' + (e && e.message ? e.message : '알 수 없는 오류') + '\n\nFirestore 보안 규칙과 익명 로그인 설정을 확인해 주세요.');
+    return false;
+  }
+}
+
+let listenersAttached = false;
+function attachFirestoreListeners(){
+  if(listenersAttached) return;
+  listenersAttached = true;
+  const keys = ['members','flowers','ownership','competition','construction','flowerRequests'];
+  let firstLoadCount = 0;
+  keys.forEach(key=>{
+    db.collection(FIRESTORE_COLLECTION).doc(key).onSnapshot(snap=>{
+      let val = DEFAULTS[key];
+      if(snap.exists){
+        try{ val = JSON.parse(snap.data().value); }catch(e){ val = DEFAULTS[key]; }
+      }
+      if(key==='members') members = val;
+      else if(key==='flowers') flowers = val;
+      else if(key==='ownership') ownership = val;
+      else if(key==='competition') competition = val;
+      else if(key==='construction') construction = val;
+      else if(key==='flowerRequests') flowerRequests = val;
+
+      fbStatus = 'connected';
+
+      if(loading){
+        firstLoadCount++;
+        if(firstLoadCount >= keys.length){ loading = false; renderAll(); }
+      }else{
+        const ae = document.activeElement;
+        const tag = ae && ae.tagName;
+        const isTyping = tag==='INPUT' || tag==='SELECT' || tag==='TEXTAREA';
+        renderAdminArea();
+        if(!isTyping){ renderContent(); }
+      }
+    }, err=>{
+      console.error(err);
+      fbStatus = 'error';
+      loading = false;
+      fbErrorMessage = err && err.message ? err.message : String(err);
+      renderAdminArea();
+      renderContent();
+    });
+  });
+}
+
+function genId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+/* ---------------- admin gate ---------------- */
+function requireAdmin(){
+  if(!isAdmin){ alert('관리자만 수정할 수 있어요.'); return false; }
+  return true;
+}
+function openLoginModal(){
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginPwInput').value = '';
+  document.getElementById('loginOverlay').classList.add('show');
+  setTimeout(()=>document.getElementById('loginPwInput').focus(), 50);
+}
+function closeLoginModal(){ document.getElementById('loginOverlay').classList.remove('show'); }
+function submitLogin(){
+  const val = document.getElementById('loginPwInput').value;
+  if(val === ADMIN_PASSWORD){
+    isAdmin = true;
+    closeLoginModal();
+    renderAll();
+  }else{
+    document.getElementById('loginErr').style.display = 'block';
+  }
+}
+function logoutAdmin(){
+  isAdmin = false;
+  if(activeTab === 'flowers') activeTab = 'members';
+  renderAll();
+}
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && document.getElementById('loginOverlay').classList.contains('show')){
+    submitLogin();
+  }
+});
+
+/* ---------------- badge / status logic ---------------- */
+function competitionBadge(points){
+  if(points >= 1400) return { cls:'b-mussang', label:'👑 무쌍 플로리스트' };
+  if(points >= 1300) return { cls:'b-honor', label:'💮 영광 플로리스트' };
+  if(points >= 1000) return { cls:'b-honorable', label:'🎖️ 명예 플로리스트' };
+  if(points >= 700)  return { cls:'b-gold', label:'🥇 골드 플로리스트' };
+  if(points >= 500)  return { cls:'b-silver', label:'🥈 실버 플로리스트' };
+  return null;
+}
+function competitionStatusHTML(points){
+  const b = competitionBadge(points);
+  if(b) return `<span class="badge badge-sm ${b.cls}">${b.label}</span>`;
+  return `<span class="txt-shortfall">점수 미달</span>`;
+}
+function constructionStatusHTML(diff){
+  if(diff === null) return `<span class="meta">첫 기록</span>`;
+  if(diff >= 500) return `<span class="txt-ok">건설점수 충족</span>`;
+  return `<span class="txt-fail">건설점수 미달</span>`;
+}
+function diffHTML(diff){
+  if(diff === null) return `<span class="meta">-</span>`;
+  const sign = diff > 0 ? '+' : '';
+  const cls = diff >= 0 ? 'diff-plus' : 'diff-minus';
+  return `<span class="${cls}">${sign}${diff.toLocaleString()}</span>`;
+}
+
+/* ---------------- data helpers ---------------- */
+function sortedFlowers(list){
+  return [...list].sort((a,b)=>
+    QUALITY_META[a.quality].order - QUALITY_META[b.quality].order ||
+    a.name.localeCompare(b.name, 'ko')
+  );
+}
+function memberById(id){ return members.find(m=>m.id===id); }
+function flowerById(id){ return flowers.find(f=>f.id===id); }
+function memberOptionsHTML(selectedId){
+  if(members.length===0) return '<option value="">등록된 멤버 없음</option>';
+  return ['<option value="">멤버 선택</option>'].concat(
+    members.map(m=>`<option value="${m.id}" ${m.id===selectedId?'selected':''}>${escapeHTML(m.name)}</option>`)
+  ).join('');
+}
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* with-diff constructor for a member's construction history, sorted ascending by date */
+function constructionWithDiff(memberId){
+  const list = [...(construction[memberId]||[])].sort((a,b)=> a.date.localeCompare(b.date));
+  let prev = null;
+  return list.map(r=>{
+    const diff = prev===null ? null : (r.score - prev.score);
+    prev = r;
+    return { ...r, diff };
+  });
+}
+
+/* ---------------- mutations (admin only) ---------------- */
+async function addMember(name){
+  if(!requireAdmin()) return;
+  name = name.trim();
+  if(!name) return;
+  if(members.some(m=>m.name===name)){ alert('이미 있는 멤버 이름이에요.'); return; }
+  members.push({ id: genId(), name });
+  await setJSON('members', members);
+  renderAll();
+}
+async function deleteMember(id){
+  if(!requireAdmin()) return;
+  const m = memberById(id);
+  if(!confirm(`'${m?.name}' 멤버를 삭제할까요?\n보유 꽃·경쟁전·건설점수 기록도 함께 삭제돼요.`)) return;
+  members = members.filter(m=>m.id!==id);
+  delete ownership[id];
+  delete competition[id];
+  delete construction[id];
+  flowerRequests = flowerRequests.filter(r=>r.memberId!==id);
+  await Promise.all([
+    setJSON('members', members),
+    setJSON('ownership', ownership),
+    setJSON('competition', competition),
+    setJSON('construction', construction),
+    setJSON('flowerRequests', flowerRequests),
+  ]);
+  if(selMemberOwnership===id) selMemberOwnership=null;
+  if(selMemberComp===id) selMemberComp=null;
+  if(selMemberCons===id) selMemberCons=null;
+  renderAll();
+}
+
+async function addFlower(name, quality){
+  if(!requireAdmin()) return;
+  name = name.trim();
+  if(!name) return;
+  if(!QUALITY_META[quality]) return;
+  if(flowers.some(f=>f.name===name)){ alert('이미 있는 꽃 이름이에요.'); return; }
+  flowers.push({ id: genId(), name, quality });
+  await setJSON('flowers', flowers);
+  renderAll();
+}
+async function deleteFlower(id){
+  if(!requireAdmin()) return;
+  const f = flowerById(id);
+  if(!confirm(`'${f?.name}' 꽃을 삭제할까요?\n모든 멤버의 보유 목록에서도 함께 삭제돼요.`)) return;
+  flowers = flowers.filter(f=>f.id!==id);
+  Object.keys(ownership).forEach(mid=>{
+    ownership[mid] = (ownership[mid]||[]).filter(fid=>fid!==id);
+  });
+  flowerRequests = flowerRequests.filter(r=>r.flowerId!==id);
+  await Promise.all([ setJSON('flowers', flowers), setJSON('ownership', ownership), setJSON('flowerRequests', flowerRequests) ]);
+  renderAll();
+}
+
+async function toggleOwnership(memberId, flowerId){
+  if(!requireAdmin()) return;
+  const cur = new Set(ownership[memberId] || []);
+  if(cur.has(flowerId)) cur.delete(flowerId); else cur.add(flowerId);
+  ownership[memberId] = [...cur];
+  await setJSON('ownership', ownership);
+  renderAll();
+}
+
+/* ---------------- 꽃 등록 요청 (관리자 아니어도 누구나 가능) ---------------- */
+function pendingRequestsFor(memberId){
+  return flowerRequests.filter(r=>r.memberId===memberId && r.status==='pending');
+}
+function pendingRequestCountAll(){
+  return flowerRequests.filter(r=>r.status==='pending').length;
+}
+async function requestFlowerRegistration(memberId, flowerId){
+  const member = memberById(memberId);
+  const flower = flowerById(flowerId);
+  if(!member){ alert('멤버를 선택해 주세요.'); return; }
+  if(!flower){ alert('꽃을 선택해 주세요.'); return; }
+  if((ownership[memberId]||[]).includes(flowerId)){
+    alert('이미 보유 중인 꽃이에요.');
+    return;
+  }
+  if(flowerRequests.some(r=>r.memberId===memberId && r.flowerId===flowerId && r.status==='pending')){
+    alert('이미 등록 요청을 보낸 꽃이에요. 관리자 승인을 기다려 주세요.');
+    return;
+  }
+  flowerRequests.push({
+    id: genId(),
+    memberId,
+    flowerId,
+    status: 'pending',
+    createdAt: Date.now(),
+  });
+  const ok = await setJSON('flowerRequests', flowerRequests);
+  if(ok) renderAll();
+}
+function submitFlowerRequest(){
+  const select = document.getElementById('flowerRequestSelect');
+  if(!select || !select.value) return;
+  requestFlowerRegistration(selMemberOwnership, select.value);
+}
+async function approveFlowerRequest(requestId){
+  if(!requireAdmin()) return;
+  const req = flowerRequests.find(r=>r.id===requestId);
+  if(!req || req.status!=='pending') return;
+  const cur = new Set(ownership[req.memberId] || []);
+  cur.add(req.flowerId);
+  ownership[req.memberId] = [...cur];
+  req.status = 'approved';
+  req.resolvedAt = Date.now();
+  await Promise.all([ setJSON('ownership', ownership), setJSON('flowerRequests', flowerRequests) ]);
+  renderAll();
+}
+async function rejectFlowerRequest(requestId){
+  if(!requireAdmin()) return;
+  const req = flowerRequests.find(r=>r.id===requestId);
+  if(!req || req.status!=='pending') return;
+  if(!confirm('이 등록 요청을 거절할까요?')) return;
+  req.status = 'rejected';
+  req.resolvedAt = Date.now();
+  await setJSON('flowerRequests', flowerRequests);
+  renderAll();
+}
+
+async function saveCompetitionRecord(memberId, date, points, missions){
+  if(!requireAdmin()) return;
+  if(!memberId){ alert('멤버를 선택해 주세요.'); return; }
+  if(!date){ alert('날짜를 선택해 주세요.'); return; }
+  if(isNaN(points) || isNaN(missions) || points<0 || missions<0){ alert('점수와 횟수를 올바르게 입력해 주세요.'); return; }
+  const list = competition[memberId] || [];
+  const idx = list.findIndex(r=>r.date===date);
+  if(idx>=0) list[idx] = { date, points, missions }; else list.push({ date, points, missions });
+  competition[memberId] = list;
+  await setJSON('competition', competition);
+  renderAll();
+}
+async function deleteCompetitionRecord(memberId, date){
+  if(!requireAdmin()) return;
+  if(!confirm(`${formatDate(date)} 기록을 삭제할까요?`)) return;
+  competition[memberId] = (competition[memberId]||[]).filter(r=>r.date!==date);
+  await setJSON('competition', competition);
+  renderAll();
+}
+
+async function saveConstructionRecord(memberId, date, score){
+  if(!requireAdmin()) return;
+  if(!memberId){ alert('멤버를 선택해 주세요.'); return; }
+  if(!date){ alert('날짜를 선택해 주세요.'); return; }
+  if(isNaN(score) || score<0){ alert('누적 건설 점수를 올바르게 입력해 주세요.'); return; }
+  const list = construction[memberId] || [];
+  const idx = list.findIndex(r=>r.date===date);
+  if(idx>=0) list[idx] = { date, score }; else list.push({ date, score });
+  construction[memberId] = list;
+  await setJSON('construction', construction);
+  renderAll();
+}
+async function deleteConstructionRecord(memberId, date){
+  if(!requireAdmin()) return;
+  if(!confirm(`${formatDate(date)} 기록을 삭제할까요?`)) return;
+  construction[memberId] = (construction[memberId]||[]).filter(r=>r.date!==date);
+  await setJSON('construction', construction);
+  renderAll();
+}
+
+/* ---------------- tab switch ---------------- */
+function setTab(id){
+  if(id === 'flowers' && !isAdmin){
+    activeTab = 'members';
+  }else{
+    activeTab = id;
+  }
+  renderAll();
+}
+
+function openMemberOwnership(memberId){
+  selMemberOwnership = memberId;
+  activeTab = 'ownership';
+  renderAll();
+}
+
+async function renameMember(id){
+  if(!requireAdmin()) return;
+  const member = memberById(id);
+  if(!member) return;
+  const newName = prompt('멤버 이름을 수정해 주세요.', member.name);
+  if(newName === null) return;
+  const name = newName.trim();
+  if(!name) return;
+  if(members.some(m => m.id !== id && m.name === name)){
+    alert('이미 있는 멤버 이름이에요.');
+    return;
+  }
+  member.name = name;
+  await setJSON('members', members);
+  renderAll();
+}
+
+async function renameFlower(id){
+  if(!requireAdmin()) return;
+  const flower = flowerById(id);
+  if(!flower) return;
+  const newName = prompt('꽃 이름을 수정해 주세요.', flower.name);
+  if(newName === null) return;
+  const name = newName.trim();
+  if(!name) return;
+  if(flowers.some(f => f.id !== id && f.name === name)){
+    alert('이미 있는 꽃 이름이에요.');
+    return;
+  }
+  flower.name = name;
+  await setJSON('flowers', flowers);
+  renderAll();
+}
+
+/* ---------------- render: shell ---------------- */
+function renderAll(){
+  // 열람 모드에서는 '꽃 목록' 탭 자체를 숨기고,
+  // 혹시 꽃 목록 화면에 있더라도 멤버 화면으로 이동
+  if(!isAdmin && activeTab === 'flowers'){
+    activeTab = 'members';
+  }
+  renderAdminArea();
+  renderSideNav();
+  renderMobTabs();
+  renderContent();
+}
+
+function renderAdminArea(){
+  const el = document.getElementById('adminArea');
+  const statusChip = fbStatus==='connected' ? '<span class="admin-chip">🟢 실시간 연결됨</span>'
+    : fbStatus==='error' ? '<span class="admin-chip">🔴 연결 오류</span>'
+    : '<span class="admin-chip">🟡 연결 중...</span>';
+  if(isAdmin){
+    const pendingCount = pendingRequestCountAll();
+    el.innerHTML = `
+      ${statusChip}
+      <span class="admin-chip">🔓 관리자 모드</span>
+      ${pendingCount>0 ? `<span class="admin-chip" style="background:#fff;color:var(--rose-dark);font-weight:800;">🔔 새 꽃 등록 요청 ${pendingCount}건</span>` : ''}
+      <button class="btn btn-ghost-light" onclick="logoutAdmin()">로그아웃</button>
+    `;
+  }else{
+    el.innerHTML = `
+      ${statusChip}
+      <span class="admin-chip">👀 열람 모드</span>
+      <button class="btn btn-ghost-light" onclick="openLoginModal()">관리자 로그인</button>
+    `;
+  }
+}
+
+function getVisibleTabs(){
+  return isAdmin ? [...TABS, ...ADMIN_TABS] : TABS;
+}
+
+function renderSideNav(){
+  const el = document.getElementById('sideNav');
+  const visibleTabs = getVisibleTabs();
+  const pendingCount = isAdmin ? pendingRequestCountAll() : 0;
+  el.innerHTML = visibleTabs.map(t=>`
+    <button class="navbtn ${activeTab===t.id?'active':''}" onclick="setTab('${t.id}')">
+      <span class="ic">${t.icon}</span><span>${t.label}</span>
+      ${t.id==='members' && pendingCount>0 ? `<span class="badge b-pending" style="margin-left:auto;">${pendingCount}</span>` : ''}
+    </button>
+  `).join('');
+}
+
+function renderMobTabs(){
+  const el = document.getElementById('mobTabs');
+  const visibleTabs = getVisibleTabs();
+  const pendingCount = isAdmin ? pendingRequestCountAll() : 0;
+  el.innerHTML = visibleTabs.map(t=>`
+    <button class="${activeTab===t.id?'active':''}" onclick="setTab('${t.id}')">${t.icon} ${t.label}${t.id==='members' && pendingCount>0 ? ` <span class="badge b-pending" style="padding:1px 6px;font-size:10px;">${pendingCount}</span>` : ''}</button>
+  `).join('');
+}
+
+function renderContent(){
+  const el = document.getElementById('content');
+  if(fbStatus==='error'){
+    el.innerHTML = `<div class="panel">
+      <h2>🔴 Firebase 연결 오류</h2>
+      <p class="desc">데이터를 불러오지 못했어요. 아래 오류 내용을 확인해 주세요.</p>
+      <div class="notice" style="word-break:break-all;">${escapeHTML(fbErrorMessage || '알 수 없는 오류')}</div>
+      <p class="desc" style="margin-top:12px;">주로 다음 중 하나가 원인이에요.<br>
+      1) Firestore 보안 규칙이 안내드린 내용 그대로 '게시'되지 않음<br>
+      2) Authentication에서 '익명(Anonymous)' 로그인이 켜져 있지 않음<br>
+      3) firebaseConfig의 projectId 등 값이 실제 프로젝트와 다름</p>
+    </div>`;
+    return;
+  }
+  if(loading){ el.innerHTML = `<div class="panel"><div class="empty">불러오는 중...</div></div>`; return; }
+  switch(activeTab){
+    case 'members': el.innerHTML = tplMembers(); break;
+    case 'flowers': el.innerHTML = tplFlowers(); break;
+    case 'ownership': el.innerHTML = tplOwnership(); break;
+    case 'search': el.innerHTML = tplSearch(); break;
+    case 'competition': el.innerHTML = tplCompetition(); break;
+    case 'construction': el.innerHTML = tplConstruction(); break;
+    case 'ranking': el.innerHTML = tplRanking(); break;
+  }
+}
+
+/* ---------------- tab: 멤버 ---------------- */
+function tplMembers(){
+  const adminForm = isAdmin ? `
+    <div class="form-row" onkeydown="if(event.key==='Enter'){submitAddMember();}">
+      <div class="field">
+        <span class="field-label">멤버 이름</span>
+        <input type="text" id="newMemberName" placeholder="예: 로젤리아">
+      </div>
+      <button class="btn btn-primary" style="margin-top:18px" onclick="submitAddMember()">+ 멤버 추가</button>
+    </div>
+  ` : '';
+
+  const list = members.length===0
+    ? `<div class="empty">아직 등록된 멤버가 없어요.</div>`
+    : members.map(m=>{
+        const flowerCount = (ownership[m.id]||[]).length;
+        const pendingCount = pendingRequestsFor(m.id).length;
+        return `
+        <div class="row-item">
+          <div>
+            <div class="name">🌸 ${escapeHTML(m.name)}</div>
+            <div class="meta">
+              보유 꽃 ${flowerCount}종
+              ${pendingCount>0 ? `<span class="badge b-pending" style="margin-left:6px;">🔔 요청 ${pendingCount}건</span>` : ''}
+              <button class="btn btn-outline btn-sm" style="margin-left:6px;padding:4px 9px;font-size:11px;" onclick="openMemberOwnership('${m.id}')">보기</button>
+            </div>
+          </div>
+          ${isAdmin ? `
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="renameMember('${m.id}')">수정</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteMember('${m.id}')">삭제</button>
+            </div>
+          ` : ''}
+        </div>`;
+      }).join('');
+
+  return `
+    <div class="panel">
+      <h2>길드 멤버</h2>
+      <p class="desc">COZY♥I-LAND 에 오신 것을 환영합니다.<br>보유한 꽃은 UR,SSR,SR 등급만 표시됩니다.<br>도감이 오픈 되어 있지 않은 멤버는 길드 전시관에 올려주신 꽃만 등록했어요.</p>
+      ${!isAdmin ? `<div class="notice">열람 모드예요. 멤버 추가·삭제는 관리자만 할 수 있어요.</div>` : ''}
+      ${adminForm}
+      ${list}
+    </div>
+  `;
+}
+function submitAddMember(){
+  const input = document.getElementById('newMemberName');
+  addMember(input.value);
+}
+
+/* ---------------- tab: 꽃 목록 ---------------- */
+function tplFlowers(){
+  const adminForm = isAdmin ? `
+    <div class="form-row" onkeydown="if(event.key==='Enter'){submitAddFlower();}">
+      <div class="field">
+        <span class="field-label">꽃 이름</span>
+        <input type="text" id="newFlowerName" placeholder="예: 문라이트 로즈">
+      </div>
+      <div class="field">
+        <span class="field-label">품질</span>
+        <select id="newFlowerQuality">
+          <option value="UR">UR</option>
+          <option value="SSR">SSR</option>
+          <option value="SR">SR</option>
+        </select>
+      </div>
+      <button class="btn btn-primary" style="margin-top:18px" onclick="submitAddFlower()">+ 꽃 추가</button>
+    </div>
+  ` : '';
+
+  const sections = QUALITY_ORDER.map(q=>{
+    const list = sortedFlowers(flowers.filter(f=>f.quality===q));
+    const meta = QUALITY_META[q];
+    const rows = list.length===0
+      ? `<div class="empty">등록된 ${meta.label} 꽃이 없어요.</div>`
+      : list.map(f=>`
+        <div class="flower-chip-row">
+          <span><span class="qtag ${meta.cls}">${meta.label}</span>${escapeHTML(f.name)}</span>
+          ${isAdmin ? `
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-outline btn-sm" onclick="renameFlower('${f.id}')">수정</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteFlower('${f.id}')">삭제</button>
+            </div>
+          ` : ''}
+        </div>
+      `).join('');
+    return `
+      <div class="quality-section">
+        <div class="quality-head ${meta.cls}">${meta.label} <span class="count">${list.length}종</span></div>
+        ${rows}
+      </div>
+    `;
+  }).join('');
+
+  return `
+    <div class="panel">
+      <h2>꽃 목록</h2>
+      <p class="desc">게임 내 꽃을 품질(UR·SSR·SR)별로 정리해요. 같은 품질 안에서는 가나다순으로 정렬돼요.</p>
+      ${!isAdmin ? `<div class="notice">열람 모드예요. 꽃 추가·삭제는 관리자만 할 수 있어요.</div>` : ''}
+      ${adminForm}
+      ${sections}
+    </div>
+  `;
+}
+function submitAddFlower(){
+  const name = document.getElementById('newFlowerName');
+  const quality = document.getElementById('newFlowerQuality').value;
+  addFlower(name.value, quality);
+}
+
+/* ---------------- tab: 멤버 보유 꽃 ---------------- */
+function tplOwnership(){
+  if(members.length===0){
+    return `<div class="panel"><h2>멤버별 보유 꽃</h2><div class="empty">먼저 '길드 멤버' 탭에서 멤버를 추가해 주세요.</div></div>`;
+  }
+  if(flowers.length===0){
+    return `<div class="panel"><h2>멤버별 보유 꽃</h2><div class="empty">먼저 '꽃 목록' 탭에서 꽃을 추가해 주세요.</div></div>`;
+  }
+  const selector = `
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">멤버 선택</span>
+        <select class="member-select" onchange="selMemberOwnership=this.value||null; renderContent();">
+          ${memberOptionsHTML(selMemberOwnership)}
+        </select>
+      </div>
+    </div>
+  `;
+
+  if(!selMemberOwnership){
+    return `<div class="panel"><h2>멤버별 보유 꽃</h2><p class="desc">멤버를 선택하면 보유한 꽃을 관리할 수 있어요.</p>${selector}<div class="empty">멤버를 선택해 주세요.</div></div>`;
+  }
+
+  const memberName = memberById(selMemberOwnership)?.name || '';
+  const owned = new Set(ownership[selMemberOwnership] || []);
+  const ownedFlowers = sortedFlowers(flowers.filter(f=>owned.has(f.id)));
+  const notOwnedFlowers = sortedFlowers(flowers.filter(f=>!owned.has(f.id)));
+
+  // 새 꽃 구매 등록 요청 섹션 (관리자가 아니어도 누구나 요청 가능)
+  const pendingIds = new Set(pendingRequestsFor(selMemberOwnership).map(r=>r.flowerId));
+  const requestableFlowers = notOwnedFlowers.filter(f=>!pendingIds.has(f.id));
+  let requestFormHTML;
+  if(requestableFlowers.length===0){
+    requestFormHTML = `<div class="notice">${notOwnedFlowers.length===0 ? '이미 등록된 모든 꽃을 보유하고 있어요.' : '보유하지 않은 꽃은 모두 등록 요청이 접수되어 있어요.'}</div>`;
+  }else{
+    const optionsHTML = QUALITY_ORDER.map(q=>{
+      const list = requestableFlowers.filter(f=>f.quality===q);
+      if(list.length===0) return '';
+      return `<optgroup label="${QUALITY_META[q].label}">${list.map(f=>`<option value="${f.id}">${escapeHTML(f.name)}</option>`).join('')}</optgroup>`;
+    }).join('');
+    requestFormHTML = `
+      <div class="form-row" style="margin-bottom:${pendingIds.size>0 ? '14px' : '0'};">
+        <div class="field" style="flex:1; min-width:180px;">
+          <span class="field-label">구매한 꽃 선택</span>
+          <select id="flowerRequestSelect" style="width:100%">${optionsHTML}</select>
+        </div>
+        <button class="btn btn-sage" style="margin-top:18px" onclick="submitFlowerRequest()">등록 요청</button>
+      </div>
+    `;
+  }
+  const pendingList = pendingRequestsFor(selMemberOwnership);
+  let pendingListHTML = '';
+  if(pendingList.length>0){
+    pendingListHTML = pendingList.map(r=>{
+      const f = flowerById(r.flowerId);
+      if(!f) return '';
+      const meta = QUALITY_META[f.quality];
+      const when = new Date(r.createdAt).toLocaleString('ko-KR', { month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div class="request-row">
+          <div>
+            <span class="qtag ${meta.cls}">${meta.label}</span>${escapeHTML(f.name)}
+            <div class="meta-line">${when} 요청됨</div>
+          </div>
+          ${isAdmin ? `
+            <div style="display:flex;gap:6px;">
+              <button class="btn btn-sage btn-sm" onclick="approveFlowerRequest('${r.id}')">승인</button>
+              <button class="btn btn-danger btn-sm" onclick="rejectFlowerRequest('${r.id}')">거절</button>
+            </div>
+          ` : `<span class="badge b-pending">🕒 승인 대기 중</span>`}
+        </div>
+      `;
+    }).join('');
+  }
+  const requestSectionHTML = `
+    <div class="request-box">
+      <div class="section-sub">🛍️ 새 꽃 구매하셨나요?</div>
+      <p class="desc" style="margin-bottom:12px;">구매한 꽃을 선택하고 등록 요청을 보내면, 관리자 승인 즉시 보유 꽃 목록에 추가돼요.</p>
+      ${requestFormHTML}
+      ${pendingListHTML}
+    </div>
+  `;
+
+  // 보유 중인 꽃 — 한눈에 보이는 목록
+  let ownedSectionsHTML;
+  if(ownedFlowers.length===0){
+    ownedSectionsHTML = `<div class="empty">아직 보유한 꽃이 없어요.</div>`;
+  }else{
+    ownedSectionsHTML = QUALITY_ORDER.map(q=>{
+      const list = ownedFlowers.filter(f=>f.quality===q);
+      if(list.length===0) return '';
+      const meta = QUALITY_META[q];
+      const rows = list.map(f=>`
+        <div class="flower-chip-row">
+          <span><span class="qtag ${meta.cls}">${meta.label}</span>${escapeHTML(f.name)}</span>
+          ${isAdmin ? `<button class="btn btn-danger btn-sm" onclick="toggleOwnership('${selMemberOwnership}','${f.id}')">삭제</button>` : ''}
+        </div>
+      `).join('');
+      return `<div class="quality-section"><div class="quality-head ${meta.cls}">${meta.label} <span class="count">${list.length}종</span></div>${rows}</div>`;
+    }).join('');
+  }
+
+  // 관리자용 꽃 추가 폼 (아직 보유하지 않은 꽃 중에서 선택)
+  let addFormHTML = '';
+  if(isAdmin){
+    if(notOwnedFlowers.length===0){
+      addFormHTML = `<div class="notice">${escapeHTML(memberName)} 님은 등록된 모든 꽃을 보유하고 있어요.</div>`;
+    }else{
+      const optionsHTML = QUALITY_ORDER.map(q=>{
+        const list = notOwnedFlowers.filter(f=>f.quality===q);
+        if(list.length===0) return '';
+        return `<optgroup label="${QUALITY_META[q].label}">${list.map(f=>`<option value="${f.id}">${escapeHTML(f.name)}</option>`).join('')}</optgroup>`;
+      }).join('');
+      addFormHTML = `
+        <div class="form-row">
+          <div class="field" style="flex:1; min-width:180px;">
+            <span class="field-label">보유 꽃 추가</span>
+            <select id="addFlowerSelect" style="width:100%">${optionsHTML}</select>
+          </div>
+          <button class="btn btn-primary" style="margin-top:18px" onclick="submitAddOwnedFlower()">+ 추가</button>
+        </div>
+      `;
+    }
+  }
+
+  return `
+    <div class="panel">
+      <h2>멤버별 보유 꽃</h2>
+      <p class="desc">${escapeHTML(memberName)} 님이 보유한 꽃만 한눈에 볼 수 있어요.</p>
+      ${selector}
+      ${requestSectionHTML}
+      ${!isAdmin ? `<div class="notice">열람 모드예요. 보유 꽃 변경은 관리자만 할 수 있어요.</div>` : ''}
+      ${addFormHTML}
+      <div class="section-sub">🧺 보유 중인 꽃 (${ownedFlowers.length}종)</div>
+      ${ownedSectionsHTML}
+    </div>
+  `;
+}
+function submitAddOwnedFlower(){
+  const select = document.getElementById('addFlowerSelect');
+  if(!select || !select.value) return;
+  toggleOwnership(selMemberOwnership, select.value);
+}
+
+/* ---------------- tab: 꽃 검색 ---------------- */
+function tplSearch(){
+  return `
+    <div class="panel">
+      <h2>꽃 검색</h2>
+      <p class="desc">꽃 이름으로 검색하면 해당 꽃을 보유한 멤버를 바로 확인할 수 있어요.</p>
+      <div class="form-row">
+        <div class="field" style="flex:1; min-width:180px;">
+          <span class="field-label">꽃 이름 검색</span>
+          <input type="text" id="flowerSearchInput" style="width:100%" placeholder="꽃 이름을 입력하세요" value="${escapeHTML(searchQuery)}" oninput="onSearchInput(this.value)">
+        </div>
+      </div>
+      <div id="searchResultsArea">${renderSearchResultsHTML()}</div>
+    </div>
+  `;
+}
+function renderSearchResultsHTML(){
+  const q = searchQuery.trim();
+  if(!q) return `<div class="empty">검색어를 입력해 주세요.</div>`;
+  const matched = sortedFlowers(flowers.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())));
+  if(matched.length===0){
+    return `<div class="empty">'${escapeHTML(q)}'와 일치하는 꽃이 없어요.</div>`;
+  }
+  return matched.map(f=>{
+    const meta = QUALITY_META[f.quality];
+    const owners = members.filter(m=> (ownership[m.id]||[]).includes(f.id));
+    return `
+      <div class="row-item" style="align-items:flex-start; flex-direction:column; gap:8px;">
+        <div><span class="qtag ${meta.cls}" style="margin-right:8px">${meta.label}</span><span class="name">${escapeHTML(f.name)}</span></div>
+        <div style="font-size:13px; color:var(--ink-soft)">
+          ${owners.length===0 ? '보유한 멤버가 없어요.' : '보유 멤버: ' + owners.map(o=>`<span class="badge" style="background:var(--rose-pale); color:var(--rose-dark)">${escapeHTML(o.name)}</span>`).join(' ')}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+function onSearchInput(val){
+  searchQuery = val;
+  const area = document.getElementById('searchResultsArea');
+  if(area) area.innerHTML = renderSearchResultsHTML();
+}
+
+/* ---------------- tab: 경쟁전 기록 ---------------- */
+function tplCompetition(){
+  if(members.length===0){
+    return `<div class="panel"><h2>경쟁전 기록</h2><div class="empty">먼저 '길드 멤버' 탭에서 멤버를 추가해 주세요.</div></div>`;
+  }
+  const selector = `
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">멤버 선택</span>
+        <select class="member-select" onchange="selMemberComp=this.value||null; renderContent();">
+          ${memberOptionsHTML(selMemberComp)}
+        </select>
+      </div>
+    </div>
+  `;
+
+  let body = `<div class="empty">멤버를 선택해 주세요.</div>`;
+  if(selMemberComp){
+    const dateOptions = COMP_DATES.map(d=>`<option value="${d}">${formatDate(d)}</option>`).join('');
+    const adminForm = isAdmin ? `
+      <div class="section-sub">✏️ 기록 입력 (같은 날짜를 다시 저장하면 수정돼요)</div>
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">날짜 (월요일)</span>
+          <select id="compDate">${dateOptions}</select>
+        </div>
+        <div class="field">
+          <span class="field-label">경쟁 포인트</span>
+          <input type="number" id="compPoints" min="0" step="1" style="width:110px" placeholder="0">
+        </div>
+        <div class="field">
+          <span class="field-label">임무 완료 횟수</span>
+          <input type="number" id="compMissions" min="0" step="1" style="width:110px" placeholder="0">
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px" onclick="submitCompetition()">저장</button>
+      </div>
+      <div class="divider"></div>
+    ` : '';
+
+    const list = [...(competition[selMemberComp]||[])].sort((a,b)=> b.date.localeCompare(a.date));
+    const rows = list.length===0
+      ? `<div class="empty">아직 기록이 없어요.</div>`
+      : `<div class="table-wrap"><table>
+          <thead><tr><th>날짜</th><th>경쟁 포인트</th><th>등급</th><th>임무 완료 횟수</th>${isAdmin?'<th></th>':''}</tr></thead>
+          <tbody>
+            ${list.map(r=>`
+              <tr>
+                <td>${formatDate(r.date)}</td>
+                <td><strong>${r.points.toLocaleString()}</strong></td>
+                <td>${competitionStatusHTML(r.points)}</td>
+                <td>${r.missions.toLocaleString()}회</td>
+                ${isAdmin ? `<td><button class="btn btn-danger btn-sm" onclick="deleteCompetitionRecord('${selMemberComp}','${r.date}')">삭제</button></td>` : ''}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>`;
+
+    body = adminForm + rows;
+  }
+
+  return `
+    <div class="panel">
+      <h2>경쟁전 기록</h2>
+      <p class="desc">길드 경쟁전 점수는 매주 개인 500점 채워주셔야 합니다.</p>
+      ${!isAdmin ? `<div class="notice">열람 모드예요. 기록 입력·삭제는 관리자만 할 수 있어요.</div>` : ''}
+      ${selector}
+      ${body}
+    </div>
+  `;
+}
+function submitCompetition(){
+  const date = document.getElementById('compDate').value;
+  const points = parseInt(document.getElementById('compPoints').value, 10);
+  const missions = parseInt(document.getElementById('compMissions').value, 10);
+  saveCompetitionRecord(selMemberComp, date, points, missions);
+}
+
+/* ---------------- tab: 누적 건설 점수 ---------------- */
+function tplConstruction(){
+  if(members.length===0){
+    return `<div class="panel"><h2>누적 건설 점수</h2><div class="empty">먼저 '길드 멤버' 탭에서 멤버를 추가해 주세요.</div></div>`;
+  }
+  const selector = `
+    <div class="form-row">
+      <div class="field">
+        <span class="field-label">멤버 선택</span>
+        <select class="member-select" onchange="selMemberCons=this.value||null; renderContent();">
+          ${memberOptionsHTML(selMemberCons)}
+        </select>
+      </div>
+    </div>
+  `;
+
+  let body = `<div class="empty">멤버를 선택해 주세요.</div>`;
+  if(selMemberCons){
+    const dateOptions = CONS_DATES.map(d=>`<option value="${d}">${formatDate(d)}</option>`).join('');
+    const adminForm = isAdmin ? `
+      <div class="section-sub">✏️ 기록 입력 (같은 날짜를 다시 저장하면 수정돼요)</div>
+      <div class="form-row">
+        <div class="field">
+          <span class="field-label">날짜 (금요일)</span>
+          <select id="consDate">${dateOptions}</select>
+        </div>
+        <div class="field">
+          <span class="field-label">누적 건설 점수</span>
+          <input type="number" id="consScore" min="0" step="1" style="width:130px" placeholder="0">
+        </div>
+        <button class="btn btn-primary" style="margin-top:18px" onclick="submitConstruction()">저장</button>
+      </div>
+      <div class="divider"></div>
+    ` : '';
+
+    const list = [...constructionWithDiff(selMemberCons)].sort((a,b)=> b.date.localeCompare(a.date));
+    const rows = list.length===0
+      ? `<div class="empty">아직 기록이 없어요.</div>`
+      : `<div class="table-wrap"><table>
+          <thead><tr><th>날짜</th><th>누적 건설 점수</th><th>직전 대비</th><th>상태</th>${isAdmin?'<th></th>':''}</tr></thead>
+          <tbody>
+            ${list.map(r=>`
+              <tr>
+                <td>${formatDate(r.date)}</td>
+                <td><strong>${r.score.toLocaleString()}</strong></td>
+                <td>${diffHTML(r.diff)}</td>
+                <td>${constructionStatusHTML(r.diff)}</td>
+                ${isAdmin ? `<td><button class="btn btn-danger btn-sm" onclick="deleteConstructionRecord('${selMemberCons}','${r.date}')">삭제</button></td>` : ''}
+              </tr>
+            `).join('')}
+          </tbody>
+        </table></div>`;
+
+    body = adminForm + rows;
+  }
+
+  return `
+    <div class="panel">
+      <h2>누적 건설 점수</h2>
+      <p class="desc">건설 점수는 일주일 누적 500점 이상 채워주셔야 합니다.</p>
+      ${!isAdmin ? `<div class="notice">열람 모드예요. 기록 입력·삭제는 관리자만 할 수 있어요.</div>` : ''}
+      ${selector}
+      ${body}
+    </div>
+  `;
+}
+function submitConstruction(){
+  const date = document.getElementById('consDate').value;
+  const score = parseInt(document.getElementById('consScore').value, 10);
+  saveConstructionRecord(selMemberCons, date, score);
+}
+
+/* ---------------- tab: 종합 랭킹 ---------------- */
+function latestDateAcross(recordsObj){
+  let latest = null;
+  Object.values(recordsObj).forEach(list=>{
+    (list||[]).forEach(r=>{ if(!latest || r.date > latest) latest = r.date; });
+  });
+  return latest;
+}
+
+function tplRanking(){
+  if(members.length===0){
+    return `<div class="panel"><h2>종합 랭킹</h2><div class="empty">먼저 '길드 멤버' 탭에서 멤버를 추가해 주세요.</div></div>`;
+  }
+
+  // 경쟁전 랭킹
+  const compLatest = latestDateAcross(competition);
+  let compTable;
+  if(!compLatest){
+    compTable = `<div class="empty">아직 경쟁전 기록이 없어요.</div>`;
+  }else{
+    const rows = members.map(m=>{
+      const rec = (competition[m.id]||[]).find(r=>r.date===compLatest);
+      return { member:m, rec };
+    }).sort((a,b)=>{
+      const pa = a.rec ? a.rec.points : -1;
+      const pb = b.rec ? b.rec.points : -1;
+      return pb - pa;
+    });
+    compTable = `<div class="table-wrap"><table>
+      <thead><tr><th>순위</th><th>멤버</th><th>경쟁 포인트</th><th>등급</th><th>임무 완료</th></tr></thead>
+      <tbody>
+        ${rows.map((r,i)=> r.rec ? `
+          <tr>
+            <td><span class="rank-num">${i+1}</span></td>
+            <td>${escapeHTML(r.member.name)}</td>
+            <td><strong>${r.rec.points.toLocaleString()}</strong></td>
+            <td>${competitionStatusHTML(r.rec.points)}</td>
+            <td>${r.rec.missions.toLocaleString()}회</td>
+          </tr>
+        ` : `
+          <tr>
+            <td><span class="rank-num">-</span></td>
+            <td>${escapeHTML(r.member.name)}</td>
+            <td colspan="3"><span class="meta">이번 주 기록 없음</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table></div>`;
+  }
+
+  // 건설 점수 랭킹
+  const consLatest = latestDateAcross(construction);
+  let consTable;
+  if(!consLatest){
+    consTable = `<div class="empty">아직 누적 건설 점수 기록이 없어요.</div>`;
+  }else{
+    const rows = members.map(m=>{
+      const withDiff = constructionWithDiff(m.id);
+      const rec = withDiff.find(r=>r.date===consLatest);
+      return { member:m, rec };
+    }).sort((a,b)=>{
+      const sa = a.rec ? a.rec.score : -1;
+      const sb = b.rec ? b.rec.score : -1;
+      return sb - sa;
+    });
+    consTable = `<div class="table-wrap"><table>
+      <thead><tr><th>순위</th><th>멤버</th><th>누적 건설 점수</th><th>직전 대비</th><th>상태</th></tr></thead>
+      <tbody>
+        ${rows.map((r,i)=> r.rec ? `
+          <tr>
+            <td><span class="rank-num">${i+1}</span></td>
+            <td>${escapeHTML(r.member.name)}</td>
+            <td><strong>${r.rec.score.toLocaleString()}</strong></td>
+            <td>${diffHTML(r.rec.diff)}</td>
+            <td>${constructionStatusHTML(r.rec.diff)}</td>
+          </tr>
+        ` : `
+          <tr>
+            <td><span class="rank-num">-</span></td>
+            <td>${escapeHTML(r.member.name)}</td>
+            <td colspan="3"><span class="meta">이번 주 기록 없음</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table></div>`;
+  }
+
+  return `
+    <div class="panel">
+      <h2>🏆 경쟁전 랭킹</h2>
+      <p class="desc">${compLatest ? formatDate(compLatest) + ' 기준' : ''} 가장 최근 기록을 점수 높은 순으로 보여줘요.</p>
+      ${compTable}
+    </div>
+    <div class="panel">
+      <h2>🏗️ 건설 점수 랭킹</h2>
+      <p class="desc">${consLatest ? formatDate(consLatest) + ' 기준' : ''} 가장 최근 기록을 점수 높은 순으로 보여줘요.</p>
+      ${consTable}
+    </div>
+  `;
+}
+
+/* ---------------- setup guide (shown until firebaseConfig is filled in) ---------------- */
+function renderSetupGuide(){
+  document.getElementById('adminArea').innerHTML = '<span class="admin-chip">⚙️ 설정 필요</span>';
+  document.getElementById('sideNav').innerHTML = '';
+  document.getElementById('mobTabs').innerHTML = '';
+  document.getElementById('content').innerHTML = `
+    <div class="panel">
+      <h2>⚙️ 처음 한 번, Firebase 연결이 필요해요</h2>
+      <p class="desc">이 파일은 어디서 열어도 실시간으로 데이터를 공유할 수 있도록 무료 Firebase(Firestore) 데이터베이스를 사용해요. 아래 순서를 딱 한 번만 따라 하면 계속 사용할 수 있어요.</p>
+      <ol style="padding-left:20px; line-height:2.1; font-size:14px; margin:0 0 18px;">
+        <li><a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase 콘솔</a>에서 새 프로젝트를 만들어요. (이름은 자유롭게, 예: cozy-iland)</li>
+        <li>왼쪽 메뉴 <b>Build → Firestore Database</b> → '데이터베이스 만들기'를 눌러 생성해요. (위치는 서울 등 원하는 곳)</li>
+        <li>Firestore의 <b>규칙(Rules)</b> 탭에서 아래 규칙을 통째로 붙여넣고 '게시'해요.</li>
+        <li><b>Build → Authentication</b> → '시작하기' → 로그인 방법에서 <b>익명(Anonymous)</b>을 사용 설정해요.</li>
+        <li>왼쪽 위 ⚙️ 프로젝트 설정 → '내 앱' → 웹 앱 추가(&lt;/&gt; 아이콘) → 앱 등록하면 <code>firebaseConfig</code> 값이 나와요. 그대로 복사해요.</li>
+        <li>이 HTML 파일을 메모장 등 텍스트 편집기로 열어서, 상단의 <code>firebaseConfig</code> 부분에 방금 복사한 값을 붙여넣고 저장한 뒤 다시 브라우저로 열어요.</li>
+      </ol>
+      <div class="section-sub">Firestore 보안 규칙 (그대로 복사해서 붙여넣기)</div>
+      <pre style="background:var(--surface-soft); border:1px solid var(--line); border-radius:12px; padding:14px; font-size:12px; overflow-x:auto; line-height:1.6;">rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /cozyIlandData/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}</pre>
+      <div class="notice">관리자 비밀번호(0618) 확인은 화면(앱) 안에서만 이뤄져요. 아주 민감한 데이터가 아니라면 충분하지만, 완벽한 보안은 아니라는 점 참고해 주세요.</div>
+    </div>
+  `;
+}
+
+/* ---------------- init ---------------- */
+function init(){
+  if(!FIREBASE_CONFIGURED){
+    renderSetupGuide();
+    return;
+  }
+  renderAll();
+  fbStatus = 'connecting';
+  renderAdminArea();
+
+  try{
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    const auth = firebase.auth();
+
+    auth.signInAnonymously().catch(err=>{
+      console.error(err);
+      fbStatus = 'error';
+      loading = false;
+      fbErrorMessage = err && err.message ? err.message : String(err);
+      renderAdminArea();
+      renderContent();
+    });
+
+    auth.onAuthStateChanged(user=>{
+      if(user){
+        authReady = true;
+        attachFirestoreListeners();
+      }
+    });
+  }catch(e){
+    console.error(e);
+    fbStatus = 'error';
+    loading = false;
+    fbErrorMessage = e && e.message ? e.message : String(e);
+    renderAdminArea();
+    renderContent();
+  }
+}
+init();
+</script>
+</body>
+</html>
